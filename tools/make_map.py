@@ -22,9 +22,9 @@ GEO = os.path.join(CACHE, "ne_110m_admin_0_countries.geojson")
 OUT = os.path.join(ROOT, "assets", "map.png")
 
 W, H = 660, 330
-OCEAN = (233, 238, 240)
-LAND = (226, 218, 199)
-COAST = (203, 192, 168)
+OCEAN = (17, 33, 60)
+LAND = (214, 194, 150)
+COAST = (168, 146, 102)
 PIN = (176, 38, 46)
 PIN_RING = (255, 255, 255)
 FONT_PATH = "/System/Library/Fonts/Supplemental/Arial Bold.ttf"
@@ -69,6 +69,13 @@ def main():
                 draw.polygon(points, fill=LAND, outline=COAST)
 
     font = ImageFont.truetype(FONT_PATH, 13)
+    for place in stories.BRIEF_PINS:
+        lat, lon = stories.BRIEF_PINS[place]
+        x, y = project(lon, lat)
+        if not (0 <= x < W and 0 <= y < H):
+            continue
+        draw.ellipse([x - 3, y - 3, x + 3, y + 3], fill=(150, 160, 178))
+
     for story in stories.HEROES + stories.CARDS:
         lat, lon = story["pin"]
         x, y = project(lon, lat)

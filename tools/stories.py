@@ -26,7 +26,7 @@ HEROES = [
     {
         "no": 1,
         "region": "Asia",
-        "beat": "Diplomacy",
+        "beat": "Summit",
         "headline": "Trump, Xi and Putin meet in a historic first",
         "deck": (
             "The three leaders shake hands in Shenzhen before the APEC summit "
@@ -88,22 +88,22 @@ CARDS = [
     {
         "no": 6,
         "region": "United States",
-        "beat": "Politics",
-        "headline": "Democrats name Jeffries speaker",
-        "deck": "Jeffries takes the nomination for speaker.",
+        "beat": "Tech",
+        "headline": "US seeks a briefing on a reported AI deal",
+        "deck": "Lawmakers ask Microsoft about talks with ByteDance.",
         "art": "podium",
         "pin": (38.91, -77.04),
         "place": "Washington",
     },
     {
         "no": 7,
-        "region": "Europe",
-        "beat": "Economy",
-        "headline": "The EU puts a €45bn loan on the table for Ukraine",
-        "deck": "Brussels offers a bailout to keep Kyiv solvent.",
+        "region": "Asia",
+        "beat": "Tech",
+        "headline": "Two firms team up to make AI agents safer",
+        "deck": "A network for agents that handle sensitive data.",
         "art": "coins",
-        "pin": (50.85, 4.35),
-        "place": "Brussels",
+        "pin": (1.35, 103.82),
+        "place": "Singapore",
     },
     {
         "no": 8,
@@ -138,7 +138,7 @@ CARDS = [
     {
         "no": 11,
         "region": "Global",
-        "beat": "Humanitarian",
+        "beat": "Aid",
         "headline": "One child in four now lives in a war zone",
         "deck": "UN report: a record number in conflict",
         "art": "children",
@@ -148,7 +148,7 @@ CARDS = [
     {
         "no": 12,
         "region": "Americas",
-        "beat": "Security",
+        "beat": "Defense",
         "headline": "The US and Venezuela sign a military tie-up",
         "deck": "Hegseth seals the accord in Caracas.",
         "art": "accord",
@@ -157,33 +157,40 @@ CARDS = [
     },
 ]
 
-# Shorter stories, printed in the "also on" column with the region that carried them.
-ALSO = [
-    ("Europe", "Israel delays West Bank building"),
-    ("Europe", "A Russian charged over Palantir"),
-    ("Europe", "Berlin's coalition on Ukraine"),
-    ("Europe", "EU Rwanda hub plan splits states"),
-    ("Europe", "Deutsche Bank hit by papers leak"),
-    ("Americas", "Florida pastor guilty in Haiti"),
-    ("Americas", "Nvidia answers a China claim"),
-    ("Americas", "Waymo pulls robotaxis off roads"),
-    ("Americas", "Baseball heads for a lockout"),
-    ("Americas", "Washington seeks a tech briefing"),
-    ("Asia", "China settles trade in yuan"),
-    ("Asia", "Takaichi meets Putin in rare talks"),
-    ("Asia", "Trump may meet Kim Jong-un"),
-    ("Asia", "Shanghai moves to price the roads"),
-    ("South America", "Peru's rappers reclaim Inca tongue"),
-    ("South America", "Ship detentions draw a warning"),
-    ("Africa", "Violence on Nigeria's campaign"),
-    ("Africa", "Ebola cases double in the DR Congo"),
-    ("Africa", "Kenyan families flee violence"),
-    ("Middle East", "More children killed in Yemen"),
-    ("Oceania", "Australia's cricket row deepens"),
-    ("Science", "Voyager nears Earth by a light-day"),
-    ("Science", "Rocket fails, 40 satellites lost"),
-    ("Sports", "Chelsea edge PSG in the last eight"),
+# The short briefs, printed as wire reports: the place, then one line.
+BRIEFS = [
+    ("Berlin", "Coalition meets on Ukraine"),
+    ("Frankfurt", "Deutsche Bank hit by a leak"),
+    ("The Hague", "World Court rules on Rohingya case"),
+    ("Brussels", "States split over Rwanda hub plan"),
+    ("Madrid", "A Van Gogh portrait makes a record"),
+    ("Jerusalem", "Israel delays West Bank contracts"),
+    ("Sana'a", "More children killed in Yemen"),
+    ("Caracas", "Hegseth signs a military deal"),
+    ("Washington", "Nvidia answers a China claim"),
+    ("Washington", "Baseball heads for a lockout"),
+    ("Bengaluru", "The GTA VI studio wants hits"),
+    ("Los Angeles", "GTA VI opens to perfect reviews"),
+    ("Tokyo", "Takaichi meets Putin in rare talks"),
+    ("Beijing", "China settles 30% of trade in yuan"),
+    ("Shanghai", "Shanghai prices its congestion"),
+    ("Shenzhen", "Leaders adopt the Shenzhen pact"),
+    ("Shenzhen", "Trump walks up to Putin at dinner"),
+    ("Singapore", "Maeder is World Sailor of the Year"),
+    ("Malaysia", "Anwar urges fair terms for states"),
+    ("Antalya", "Earth passes its warming target"),
+    ("Lima", "Peru's rappers reclaim Quechua"),
+    ("Panama", "Ship detentions draw a warning"),
+    ("Kigali", "Ebola cases double in the DR Congo"),
+    ("Nairobi", "Kenyan families flee violence"),
+    ("Abuja", "Violence on Nigeria's campaign"),
+    ("Sydney", "Australia's cricket row deepens"),
+    ("London", "Chelsea edge PSG in the last eight"),
+    ("Austin", "Waymo pulls robotaxis off the roads"),
+    ("Miami", "Florida pastor guilty over Haiti"),
 ]
+
+PLACE_REGION = {'Berlin': 'Europe', 'Frankfurt': 'Europe', 'The Hague': 'Europe', 'Brussels': 'Europe', 'Madrid': 'Europe', 'Warsaw': 'Europe', 'Rome': 'Europe', 'Jerusalem': 'Middle East', "Sana'a": 'Middle East', 'Gaza City': 'Middle East', 'Tehran': 'Middle East', 'Baghdad': 'Middle East', 'Caracas': 'Americas', 'Washington': 'Americas', 'New York': 'Americas', 'Miami': 'Americas', 'Austin': 'Americas', 'Los Angeles': 'Americas', 'Bengaluru': 'Asia', 'Tokyo': 'Asia', 'Beijing': 'Asia', 'Shanghai': 'Asia', 'Shenzhen': 'Asia', 'Taipei': 'Asia', 'Manila': 'Asia', 'Singapore': 'Asia', 'Malaysia': 'Asia', 'Panama': 'Americas', 'Kuala Lumpur': 'Asia', 'Cairo': 'Africa', 'Kigali': 'Africa', 'Nairobi': 'Africa', 'Abuja': 'Africa', 'Addis Ababa': 'Africa', 'Sydney': 'Oceania', 'London': 'Europe', 'Antalya': 'Middle East', 'Lima': 'South America', 'Panama City': 'Americas'}
 
 SOURCES = (
     "Every story reported or first reported on Thursday 19 November 2026. "
@@ -234,24 +241,58 @@ STATS = [
 # The fact box at the foot of the page: what the day was, and what it was not.
 DATE_CHECK = [
     (
-        "REPORTING WINDOW",
-        "Thursday 19 November 2026, 00:00-06:00 GMT. Anything first "
-        "reported on Wednesday 18 November is not counted as today's news.",
+        "FIRST REPORTED WEDNESDAY 18 NOV",
+        "so not counted as today's news: the EU's proposed €45bn loan for Ukraine · the House Democrats' "
+        "251-11 vote naming Hakeem Jeffries · the Iranian drone interceptions "
+        "overnight · Voyager 1's one-light-day crossing · Pew's projection on "
+        "religion by 2035 · the first COP31 draft",
     ),
     (
         "FIRST EVER",
-        "Trump, Xi and Putin meet three-way in Shenzhen — no such meeting "
-        "of the three has been held before.",
+        "Trump, Xi and Putin meet three-way in Shenzhen — no such meeting of "
+        "the three has been held before.",
     ),
     (
         "BIGGEST LISTING",
-        "Anthropic priced at $83 a share: an $81bn raise and about $1.5tn "
-        "of value on its first day of trading.",
+        "Anthropic priced at $83 a share: an $81bn raise and about $1.5tn of "
+        "value on its first day of trading.",
     ),
     (
         "THE NUMBERS",
-        "House Democrats chose Hakeem Jeffries as speaker 251-11; a Van "
-        "Gogh portrait made $190.4m; a UN report puts one child in four in "
-        "a war zone.",
+        "GTA VI took 15.9m pre-orders; a Van Gogh portrait made $190.4m; a UN "
+        "report puts one child in four in a war zone.",
     ),
 ]
+
+# Where the brief stories happened, for the dots on the map.
+BRIEF_PINS = {
+    "Berlin": (52.52, 13.41),
+    "Frankfurt": (50.11, 8.68),
+    "The Hague": (52.08, 4.31),
+    "Brussels": (50.85, 4.35),
+    "Madrid": (40.42, -3.7),
+    "Jerusalem": (31.77, 35.21),
+    "Sana'a": (15.35, 44.21),
+    "Caracas": (10.48, -66.9),
+    "Washington": (38.91, -77.04),
+    "Bengaluru": (12.97, 77.59),
+    "Los Angeles": (34.05, -118.24),
+    "Tokyo": (35.69, 139.69),
+    "Beijing": (39.9, 116.4),
+    "Shanghai": (31.23, 121.47),
+    "Shenzhen": (22.54, 114.06),
+    "Singapore": (1.35, 103.82),
+    "Malaysia": (3.14, 101.69),
+    "Antalya": (36.9, 30.71),
+    "Lima": (-12.05, -77.04),
+    "Panama": (8.98, -79.52),
+    "Kigali": (-1.94, -85.32),
+    "Nairobi": (-1.29, 36.82),
+    "Abuja": (9.06, 7.49),
+    "Sydney": (-33.87, 151.21),
+    "London": (51.51, -0.13),
+    "Austin": (30.27, -97.74),
+    "Miami": (25.76, -80.19),
+    "New York": (40.71, -74.01),
+    "Shenzhen ": (22.54, 114.06),
+}

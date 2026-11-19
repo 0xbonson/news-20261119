@@ -493,7 +493,7 @@ def legend_block(x, y):
     for index, story in enumerate(pins):
         col = index // 3
         row = index % 3
-        y_row = y + row * 11.5
+        y_row = y + row * 11
         rows.append(
             f'<circle cx="{x + col * 84}" cy="{y_row - 3}" r="6" fill="#a8232e"/>'
             f'<text x="{x + col * 84}" y="{y_row}" font-family="Arial" font-size="8" '
@@ -616,41 +616,121 @@ def small_card(story, x, y, width):
     </g>"""
 
 
-def date_check(x, y, width, height=54):
+def date_check(x, y, width, height=70):
     """The fact box at the foot: what the day was, and what it was not."""
-    gap = 12
-    col_w = (width - gap * (len(stories.DATE_CHECK) - 1) - 16) / len(stories.DATE_CHECK)
+    gap = 14
+    widths = [336, 186, 186, 190]
     cells = []
+    cx = x + 10
     for index, (label, text) in enumerate(stories.DATE_CHECK):
-        cx = x + 8 + index * (col_w + gap)
-        lines = wrap(text, int(col_w / 4.6))
+        col_w = widths[index]
+        lines = wrap(text, int(col_w / 4.35))
         cells.append(
             f"""
       <g transform="translate({cx:.1f},{y})">
-        <text x="0" y="14" font-family="Arial" font-size="8.5" font-weight="700" fill="{ACCENT}"
+        <text x="0" y="13" font-family="Arial" font-size="8.0" font-weight="700" fill="{ACCENT}"
               letter-spacing="0.9">{esc(label)}</text>
-        {lines_svg(0, 26, lines, 8.6, "Georgia, serif", "#3d4149", line_height=11)}
+        {lines_svg(0, 25, lines, 8.4, "Georgia, serif", "#3d4149", line_height=10.6)}
       </g>"""
         )
+        cx += col_w + gap
     return (
         f'<rect x="{x}" y="{y}" width="{width}" height="{height}" fill="#fbf6ea" '
         f'stroke="{ACCENT}" stroke-width="1.4"/>' + "".join(cells)
     )
 
 
+REGION_ALIAS = {
+    "United States": "Americas",
+    "South America": "Americas",
+    "Asia": "Asia-Pacific",
+    "Culture": "World",
+    "Global": "World",
+    "Arts": "World",
+    "Sports": "World",
+    "Science": "World",
+}
+
+
+def region_counts():
+    counts = {}
+    for story in stories.HEROES + stories.CARDS:
+        region = REGION_ALIAS.get(story["region"], story["region"])
+        counts[region] = counts.get(region, 0) + 1
+    for place, text in stories.BRIEFS:
+        region = REGION_ALIAS.get(stories.PLACE_REGION.get(place, "World"), stories.PLACE_REGION.get(place, "World"))
+        counts[region] = counts.get(region, 0) + 1
+    return counts
+
+
+def _spread(widths, total, min_w):
+    """Give every segment at least min_w, taking the rest from the widest ones."""
+    widths = [max(w, min_w) for w in widths]
+    if sum(widths) > total:
+        excess = sum(widths) - total
+        pool = sum(w - min_w for w in widths)
+        if pool > 0:
+            widths = [w - excess * (w - min_w) / pool for w in widths]
+    return widths
+
+
+def region_strip(x, y, width, height=20):
+    """A bar of the day's stories, one segment per region, counted from the page."""
+    counts = region_counts()
+    order = sorted(counts.items(), key=lambda item: -item[1])
+    total = sum(counts.values())
+    gap = 3
+    usable = width - gap * (len(order) - 1)
+    segs = _spread([usable * c / total for _, c in order], usable, 76)
+    parts = []
+    cx = x
+    for (region, count), seg_w in zip(order, segs):
+        color = REGION_COLOR.get(region, "#3f434b")
+        label = region.upper()
+        if len(label) > 12:
+            label = SHORT_REGION.get(region, label)
+        parts.append(
+            f'<rect x="{cx:.1f}" y="{y}" width="{seg_w:.1f}" height="{height}" fill="{color}"/>'
+            f'<text x="{cx + seg_w / 2:.1f}" y="{y + 14}" font-family="Arial" font-size="8.6" '
+            f'font-weight="700" fill="#ffffff" text-anchor="middle" letter-spacing="1">'
+            f'{esc(label)} {count}</text>'
+        )
+        cx += seg_w + gap
+    return "".join(parts)
+
+
+def brief_block(items, x, y, width, start_no):
+    """Wire reports: the place in bold, then the line of news."""
+    rows = []
+    line_h = 15.6
+    for index, (place, text) in enumerate(items):
+        region = stories.PLACE_REGION.get(place, "Global")
+        color = REGION_COLOR.get(region, "#3f434b")
+        no = start_no + index
+        head = f"{no} {place.upper()} —"
+        rows.append(
+            f'<text x="0" y="{index * line_h}" font-family="Arial" font-size="6.7" font-weight="700" '
+            f'fill="{color}" letter-spacing="0.2">{esc(head)}</text>'
+            f'<text x="64" y="{index * line_h}" font-family="Georgia, serif" font-size="8.0" '
+            f'fill="{INK}">{esc(text)}</text>'
+        )
+    return f'<g transform="translate({x},{y})">' + "".join(rows) + "</g>"
+
+
 def build_html():
     heroes = []
     for index, story in enumerate(stories.HEROES):
-        heroes.append(hero_block(story, 18 + index * 330, 244, 320))
+        heroes.append(hero_block(story, 18 + index * 330, 268, 320))
     medium = []
     for index, story in enumerate(stories.CARDS[:5]):
-        medium.append(medium_card(story, 18 + index * 199, 460, 191))
+        medium.append(medium_card(story, 18 + index * 199, 474, 191))
     small = []
     for index, story in enumerate(stories.CARDS[5:]):
-        small.append(small_card(story, 18 + index * 249, 590, 241))
-    also = stories.ALSO
-    thirds = [also[0:8], also[8:16], also[16:24]]
-    total = len(stories.HEROES) + len(stories.CARDS) + len(also)
+        small.append(small_card(story, 18 + index * 249, 604, 241))
+    briefs = stories.BRIEFS
+    per = (len(briefs) + 2) // 3
+    cols = [briefs[0:per], briefs[per:2 * per], briefs[2 * per:]]
+    total = len(stories.HEROES) + len(stories.CARDS) + len(briefs)
     return f"""<!DOCTYPE html>
 <html><head><meta charset="utf-8"><title>The World on {stories.DAY['date_long']}</title>
 <style>
@@ -663,11 +743,13 @@ def build_html():
   <rect x="0" y="0" width="1024" height="30" fill="#14233c"/>
   <text x="18" y="20" font-family="Arial" font-size="10.5" font-weight="700" fill="#f2e9d6"
         letter-spacing="2.2">{stories.DAY['edition']}</text>
+  <text x="512" y="20" text-anchor="middle" font-family="Arial" font-size="10.5" font-weight="700"
+        fill="#e9a6a6" letter-spacing="2.2">EVERY STORY FROM ONE DAY</text>
   <text x="1006" y="20" text-anchor="end" font-family="Arial" font-size="10.5" font-weight="700"
-        fill="#f2e9d6" letter-spacing="1.6">{total} STORIES · 6 CONTINENTS · ONE DAY</text>
+        fill="#f2e9d6" letter-spacing="1.6">{total} STORIES · ONE PAGE</text>
 
   <text x="18" y="52" font-family="Arial" font-size="10.5" font-weight="700" fill="{ACCENT}"
-        letter-spacing="1.8">THE WORLD'S NEWS IN ONE PICTURE</text>
+        letter-spacing="1.8">THE WORLD IN ONE PICTURE</text>
   <text x="18" y="106" font-family="Didot, Georgia, serif" font-size="52" font-weight="700"
         fill="{INK}">{stories.DAY['date_long']}</text>
   <text x="18" y="132" font-family="Georgia, serif" font-size="14" font-style="italic"
@@ -675,40 +757,46 @@ def build_html():
   <rect x="18" y="142" width="988" height="2.4" fill="{RULE}"/>
   <rect x="18" y="147" width="988" height="0.8" fill="{RULE}" opacity="0.5"/>
 
-  {stats_strip(18, 156, 988)}
+  <text x="18" y="161" font-family="Arial" font-size="8.2" font-weight="700" fill="#6a6e77"
+        letter-spacing="1.4">STORIES BY REGION — COUNTED FROM THIS PAGE</text>
+  {region_strip(18, 166, 988)}
+
+  {stats_strip(18, 192, 988)}
 
   {''.join(heroes)}
 
-  <rect x="18" y="452" width="988" height="1.4" fill="{RULE}"/>
+  <rect x="18" y="466" width="988" height="1.4" fill="{RULE}"/>
   {''.join(medium)}
 
-  <rect x="18" y="588" width="988" height="1" fill="{RULE}" opacity="0.7"/>
+  <rect x="18" y="598" width="988" height="1" fill="{RULE}" opacity="0.7"/>
   {''.join(small)}
 
-  <rect x="18" y="666" width="988" height="1.4" fill="{RULE}"/>
+  <rect x="18" y="672" width="988" height="1.4" fill="{RULE}"/>
 
-  <text x="18" y="688" font-family="Arial" font-size="11" font-weight="700" fill="{INK}"
+  <text x="18" y="690" font-family="Arial" font-size="11" font-weight="700" fill="{INK}"
         letter-spacing="1.5">WHERE IT HAPPENED</text>
-  <rect x="18" y="694" width="336" height="168" fill="#eef1f3"/>
-  <image href="assets/map.png" x="18" y="694" width="336" height="168" preserveAspectRatio="none"/>
-  <rect x="18" y="694" width="336" height="168" fill="none" stroke="#cfc7b4" stroke-width="1"/>
-  <text x="18" y="874" font-family="Georgia, serif" font-size="9.5" fill="#6a6e77">
-    Red numbers mark the place a story on this page happened.</text>
-  {legend_block(18, 886)}
+  <rect x="18" y="696" width="336" height="150" fill="#11213c"/>
+  <image href="assets/map.png" x="18" y="696" width="336" height="150" preserveAspectRatio="none"/>
+  <rect x="18" y="696" width="336" height="150" fill="none" stroke="#11213c" stroke-width="1"/>
+  <text x="18" y="860" font-family="Georgia, serif" font-size="9.5" fill="#4a4e57">
+    Red numbers mark the stories above; grey dots mark the briefs below. Positions are approximate.</text>
+  {legend_block(18, 874)}
 
-  <rect x="366" y="694" width="0.8" height="180" fill="{RULE}" opacity="0.35"/>
-  <text x="382" y="688" font-family="Arial" font-size="11" font-weight="700" fill="{INK}"
-        letter-spacing="1.5">ALSO ON THURSDAY — {len(also)} MORE STORIES</text>
-  {also_block(thirds[0], 382, 706, 200)}
-  <rect x="584" y="694" width="0.8" height="150" fill="{RULE}" opacity="0.25"/>
-  {also_block(thirds[1], 592, 706, 200)}
-  <rect x="792" y="694" width="0.8" height="150" fill="{RULE}" opacity="0.25"/>
-  {also_block(thirds[2], 800, 706, 200)}
+  <rect x="366" y="696" width="0.8" height="180" fill="{RULE}" opacity="0.35"/>
+  <text x="382" y="690" font-family="Arial" font-size="11" font-weight="700" fill="{INK}"
+        letter-spacing="1.5">ALSO ON THURSDAY — THE REST OF THE DAY</text>
+  <rect x="374" y="700" width="206" height="172" fill="#efe9db"/>
+  {brief_block(cols[0], 382, 710, 200, 1 + len(stories.HEROES) + len(stories.CARDS))}
+  <rect x="584" y="696" width="0.8" height="170" fill="{RULE}" opacity="0.25"/>
+  {brief_block(cols[1], 592, 710, 200, 1 + len(stories.HEROES) + len(stories.CARDS) + per)}
+  <rect x="792" y="696" width="0.8" height="170" fill="{RULE}" opacity="0.25"/>
+  <rect x="792" y="700" width="206" height="172" fill="#efe9db"/>
+  {brief_block(cols[2], 800, 710, 200, 1 + len(stories.HEROES) + len(stories.CARDS) + 2 * per)}
 
   {date_check(18, 916, 988)}
 
-  <rect x="18" y="980" width="988" height="1" fill="{RULE}" opacity="0.6"/>
-  <text x="18" y="996" font-family="Georgia, serif" font-size="9.2" fill="#6a6e77">{esc(stories.SOURCES)}</text>
+  <rect x="18" y="992" width="988" height="1" fill="{RULE}" opacity="0.6"/>
+  <text x="18" y="1007" font-family="Georgia, serif" font-size="9.2" fill="#6a6e77">{esc(stories.SOURCES)}</text>
 </svg>
 </body></html>
 """
