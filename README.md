@@ -4,11 +4,11 @@
 [![rank](https://make.fun/badge/news-image-20261119/0xbonson/news-20261119/rank.svg)](https://make.fun/bounty/news-image-20261119/leaderboard?utm_source=github&utm_medium=readme&utm_campaign=news-image-20261119)
 [![reward](https://make.fun/badge/news-image-20261119/0xbonson/news-20261119/reward.svg)](https://make.fun/bounty/news-image-20261119?utm_source=github&utm_medium=readme&utm_campaign=news-image-20261119)
 
-The world's news of Thursday 19 November 2026 on one 1024x1024 front page: 36
-stories across six continents — three leaders in Shenzhen, Israeli forces in
+The world's news of Thursday 19 November 2026 on one 1024x1024 front page: 41
+stories across seven regions — three leaders in Shenzhen, Israeli forces in
 central Gaza, the biggest IPO in history, the war reaching the Crimea bridge —
-drawn as flat vector art with a world map that pins every story to the place it
-happened.
+drawn as flat vector art with a world map that pins the leads and dots every
+short report on the place it happened.
 
 ## Run it
 
@@ -22,12 +22,14 @@ The program writes the drawn front page (`entry.png`, a 1024x1024 PNG) to
 ## How it was drawn
 
 - `tools/stories.py` — the day's stories: three leads, nine more with a small
-  drawing each, and twenty-four shorter reports, each with its region, its map
+  drawing each, and twenty-nine shorter reports, each with its region, its map
   position and the place it happened.
-- `tools/build_page.py` — lays the page out as SVG (masthead, leads, cards,
-  the "also on" columns) and renders it with headless Chrome to `entry.png`.
+- `tools/build_page.py` — lays the page out as SVG (masthead, the region bar
+  and the day's figures, the leads, the cards, the world map and the wire
+  columns) and renders it with headless Chrome to `entry.png`.
 - `tools/make_map.py` — draws the world map from Natural Earth country borders
-  and prints the numbered pin of every story on it.
+  and prints the numbered pin of every lead and card on it, with a grey dot
+  for every short report.
 
 Rebuild the image with `python3 tools/make_map.py && python3 tools/build_page.py`.
 
